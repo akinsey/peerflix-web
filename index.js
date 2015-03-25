@@ -35,6 +35,7 @@ var stop = function() {
   if (!connection) return;
   connection.destroy();
   connection = null;
+  omx.stop();
 };
 
 var createTempFilename = function() {
@@ -85,6 +86,7 @@ server.route({
 
         connection.server.on('listening', function() {
           omx.play('http://127.0.0.1:' + connection.server.address().port + '/');
+          console.log('Playing torrent: ' + torrentUrl);
           return reply();
         });
       });       
@@ -100,6 +102,7 @@ server.route({
   path: '/stop',
   handler: function (request, reply) {
     stop();
+    console.log('Stopping stream');
     return reply();
   }
 });
@@ -119,6 +122,7 @@ server.route({
     var omxCommand = request.params.omx_command;
     var actualCommand = omxCtrlMap[omxCommand];
     if (actualCommand) {
+      console.log(actualCommand);
       omx[actualCommand]();
       return reply();
     }

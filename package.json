@@ -25,7 +25,12 @@
   "homepage": "https://github.com/akinsey/peerflix-web",
   "dependencies": {
     "boom": "^2.6.1",
+    "good": "^5.1.2",
+    "good-console": "^4.1.0",
+    "good-file": "^4.0.2",
     "hapi": "^8.4.0",
+    "kickass-torrent": "gusnips/node-kickass-torrent",
+    "mkdirp": "^0.5.0",
     "node-uuid": "^1.4.1",
     "omxctrl": "^0.1.2",
     "peerflix": "^0.8.6",

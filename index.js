@@ -1,19 +1,27 @@
 var Hapi = require('hapi');
 var Boom = require('boom');
+var Good = require('good');
+var GoodFile = require('good-file');
+var GoodConsole = require('good-console');
+var os = require('os');
+var dns = require('dns');
 var rimraf = require('rimraf');
+var mkdirp = require('mkdirp');
 var path = require('path');
-var tempDir = require('os').tmpdir();
+var tempDir = os.tmpdir();
 var readTorrent = require('read-torrent');
-var peerflix = require('peerflix');
 var uuid = require('node-uuid');
-var omx = require('omxctrl');
 var fs = require('fs');
+var kickass = require('kickass-torrent');
+var peerflix = require('peerflix');
+var omx = require('omxctrl');
+
+// Configs
+var PORT = process.argv[2] || 8080;
+var LOG_ENABLED = true;
 
 var connection;
-
-var STATUSES = ['PLAYING', 'PAUSED', 'IDLE'];
-var PORT = process.argv[2] || 8080;
-
+var states = ['Playing', 'Paused', 'Idle'];
 var omxCtrlMap = {
   'pause': 'pause',
   'speedup': 'increaseSpeed',
@@ -32,21 +40,20 @@ var omxCtrlMap = {
 };
 
 var stop = function() {
-  if (!connection) return;
+  if (!connection) { return; }
   connection.destroy();
   connection = null;
   omx.stop();
 };
 
-var createTempFilename = function() {
-  return path.join(tempDir, 'peerflix_' + uuid.v4());
-};
-
-var clearTempFiles = function() {
+var clearTorrentCache = function() {
   fs.readdir(tempDir, function(err, files) {
-    if (err) return;
+    if (err) {
+      console.log(err);
+      return;
+    }
     files.forEach(function(file) {
-      if (file.substr(0, 8) === 'peerflix') {
+      if (file.substr(0, 9) === 'peerflix-') {
         rimraf.sync(path.join(tempDir, file));
       }
     });
@@ -56,8 +63,33 @@ var clearTempFiles = function() {
 var server = new Hapi.Server();
 server.connection({ port: PORT });
 
+if (LOG_ENABLED) {
+  var options = {
+    logRequestPayload: true,
+    logResponsePayload: true
+  };
+  var opsPath = path.normalize(__dirname +  '/logs/operations');
+  var errsPath = path.normalize(__dirname + '/logs/errors');
+  var reqsPath = path.normalize(__dirname + '/logs/requests');
+  mkdirp.sync(opsPath);
+  mkdirp.sync(errsPath);
+  mkdirp.sync(reqsPath);
+  var configWithPath = function(path) {
+    return { path: path, extension: 'log', rotate: 'daily', format: 'YYYY-MM-DD-X', prefix:'peerflix-web' };
+  };
+  var consoleReporter = new GoodConsole({ log: '*', response: '*' });
+  var opsReporter = new GoodFile(configWithPath(opsPath), { log: '*', ops: '*' });
+  var errsReporter = new GoodFile(configWithPath(errsPath), { log: '*', error: '*' });
+  var reqsReporter = new GoodFile(configWithPath(reqsPath), { log: '*', response: '*' });
+  options.reporters = [ consoleReporter, opsReporter, errsReporter, reqsReporter ];
+  server.register({ register: Good, options: options}, function(err) { if (err) { throw(err); } });
+}
+
 server.start(function () {
-  console.log('Peerflix web running at:', server.info.uri);
+  dns.lookup(os.hostname(), function (err, address) {
+    if (err) { console.log('Peerflix web running at http://localhost:' + server.info.port); }
+    else { console.log('Peerflix web running at: http://' + address + ':' + server.info.port); }
+  });
 });
 
 server.route({
@@ -75,25 +107,25 @@ server.route({
     var torrentUrl = request.payload.url;
     if (torrentUrl) {
       readTorrent(torrentUrl, function(err, torrent) {
-        if (connection) stop();
-        clearTempFiles();
-        
+        if (err) { return reply(Boom.badRequest(err)); }
+        if (connection) { stop(); }
+        clearTorrentCache();
+
         connection = peerflix(torrent, {
           connections: 100,
-          path: createTempFilename(),
+          path: path.join(tempDir, 'peerflix-' + uuid.v4()),
           buffer: (1.5 * 1024 * 1024).toString()
         });
 
         connection.server.on('listening', function() {
           omx.play('http://127.0.0.1:' + connection.server.address().port + '/');
-          console.log('Playing torrent: ' + torrentUrl);
           return reply();
         });
-      });       
+      });
     }
     else {
       return reply(Boom.badRequest('Torrent URL Required'));
-    } 
+    }
   }
 });
 
@@ -102,7 +134,6 @@ server.route({
   path: '/stop',
   handler: function (request, reply) {
     stop();
-    console.log('Stopping stream');
     return reply();
   }
 });
@@ -111,7 +142,18 @@ server.route({
   method: 'GET',
   path: '/status',
   handler: function (request, reply) {
-    return reply(STATUSES[omx.getState()]);
+    return reply(states[omx.getState()]);
+  }
+});
+
+server.route({
+  method: 'POST',
+  path: '/query',
+  handler: function (request, reply) {
+    kickass('test search',function(err, response){
+      if (err) { return reply(Boom.badRequest(err)); }
+      return reply(response);
+    });
   }
 });
 
@@ -122,7 +164,6 @@ server.route({
     var omxCommand = request.params.omx_command;
     var actualCommand = omxCtrlMap[omxCommand];
     if (actualCommand) {
-      console.log(actualCommand);
       omx[actualCommand]();
       return reply();
     }

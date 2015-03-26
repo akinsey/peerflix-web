@@ -3,12 +3,11 @@ var Boom = require('boom');
 var Good = require('good');
 var GoodFile = require('good-file');
 var GoodConsole = require('good-console');
-var os = require('os');
-var dns = require('dns');
+var ip = require('ip');
 var rimraf = require('rimraf');
 var mkdirp = require('mkdirp');
 var path = require('path');
-var tempDir = os.tmpdir();
+var tempDir = require('os').tmpdir();
 var readTorrent = require('read-torrent');
 var uuid = require('node-uuid');
 var fs = require('fs');
@@ -92,10 +91,7 @@ if (LOG_ENABLED) {
 
 server.start(function () {
   clearTorrentCache();
-  dns.lookup(os.hostname(), function (err, address) {
-    if (err) { console.log('Peerflix web running at http://localhost:' + server.info.port); }
-    else { console.log('Peerflix web running at: http://' + address + ':' + server.info.port); }
-  });
+  console.log('Peerflix web running at: http://' + ip.address() + ':' + server.info.port);
 });
 
 // Routes
@@ -124,6 +120,7 @@ server.route({
         });
 
         connection.server.on('listening', function() {
+          if (!connection) { return reply(Boom.badRequest('Play was interrupted')); }
           omx.play('http://127.0.0.1:' + connection.server.address().port + '/');
           return reply();
         });

@@ -124,7 +124,7 @@ server.route({
         });
 
         connection.server.on('listening', function() {
-          omx.play('http://127.0.0.1:' + connection.server.address().port + '/');
+          omx.play('http://127.0.0.1:' + connection.server.address().port + '/', '-b');
           return reply();
         });
       });

@@ -20,6 +20,7 @@ var omx = require('omxctrl');
 var PORT = process.argv[2] || 8080;
 var LOG_ENABLED = true;
 
+// Params
 var connection;
 var states = ['Playing', 'Paused', 'Idle'];
 var omxCtrlMap = {
@@ -39,13 +40,7 @@ var omxCtrlMap = {
   'fastbackward': 'seekFastBackward'
 };
 
-var stop = function() {
-  if (!connection) { return; }
-  connection.destroy();
-  connection = null;
-  omx.stop();
-};
-
+// Helper Methods
 var clearTorrentCache = function() {
   fs.readdir(tempDir, function(err, files) {
     if (err) {
@@ -60,14 +55,24 @@ var clearTorrentCache = function() {
   });
 };
 
+var stop = function() {
+  if (!connection) { return; }
+  connection.destroy();
+  connection = null;
+  omx.stop();
+  clearTorrentCache();
+};
+
+omx.on('ended', function() {
+  stop();
+});
+
+// Server Setup
 var server = new Hapi.Server();
 server.connection({ port: PORT });
 
 if (LOG_ENABLED) {
-  var options = {
-    logRequestPayload: true,
-    logResponsePayload: true
-  };
+  var options = { logRequestPayload: true };
   var opsPath = path.normalize(__dirname +  '/logs/operations');
   var errsPath = path.normalize(__dirname + '/logs/errors');
   var reqsPath = path.normalize(__dirname + '/logs/requests');
@@ -86,12 +91,14 @@ if (LOG_ENABLED) {
 }
 
 server.start(function () {
+  clearTorrentCache();
   dns.lookup(os.hostname(), function (err, address) {
     if (err) { console.log('Peerflix web running at http://localhost:' + server.info.port); }
     else { console.log('Peerflix web running at: http://' + address + ':' + server.info.port); }
   });
 });
 
+// Routes
 server.route({
   method: 'GET',
   path: '/',
@@ -109,7 +116,6 @@ server.route({
       readTorrent(torrentUrl, function(err, torrent) {
         if (err) { return reply(Boom.badRequest(err)); }
         if (connection) { stop(); }
-        clearTorrentCache();
 
         connection = peerflix(torrent, {
           connections: 100,
@@ -147,13 +153,23 @@ server.route({
 });
 
 server.route({
-  method: 'POST',
+  method: 'GET',
   path: '/query',
   handler: function (request, reply) {
-    kickass('test search',function(err, response){
-      if (err) { return reply(Boom.badRequest(err)); }
-      return reply(response);
-    });
+    var query = request.query.q;
+    if (query) {
+      kickass(query, function(err, response){
+        if (err) { return reply(Boom.badRequest(err)); }
+        var filteredResults = [];
+        response.list.forEach(function(result) {
+          if (result.category === 'TV' || result.category === 'Movies') {
+            filteredResults.push(result);
+          }
+        });
+        return reply(filteredResults);
+      });
+    }
+    else { return reply(Boom.badRequest('Torrent query string must be present')); }
   }
 });
 
@@ -167,8 +183,6 @@ server.route({
       omx[actualCommand]();
       return reply();
     }
-    else {
-      return reply(Boom.badRequest('Invalid OMX Player command'));
-    }
+    else { return reply(Boom.badRequest('Invalid OMX Player command')); }
   }
 });

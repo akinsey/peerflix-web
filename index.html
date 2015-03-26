@@ -1,21 +1,112 @@
 <html>
 <head>
 <title>Peerflix Web</title>
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<style>
+  body {
+    background-color: #eaeaea;
+    padding-top: 5px;
+  }
+  #torrent-url, #torrent-query {
+    height: 42px;
+  }
+  #torrent-table > thead > tr > th {
+    padding-top: 20px;
+  }
+  .padding-fix {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+  .panel-margin-fix {
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+  .full-width {
+    width: 100%;
+    display: block;
+    padding: 10px;
+    margin-top: 10px;
+  }
+  .title {
+    text-shadow: 0px 1px #fff;
+  }
+  .thin-dotted-underline {
+    border-collapse: collapse;
+    border-bottom: 1px dotted #ccc;
+  }
+</style>
 </head>
 <body>
-Torrent URL: 
-<input id="torrent-url" type="text"></input> 
-<br /> <br />
-<button onclick="play();">Play</button>
-<button onclick="stop();">Stop</button>
-<button onclick="pause();">Pause</button>
-<button onclick="forward();">Forward</button>
-<button onclick="backward();">Backward</button>
+
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12 thin-dotted-underline">
+      <h2 class="title">Peerflix Web <small><span class="glyphicon glyphicon-thumbs-up"></span></small></h2>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12 col-sm-8 padding-fix">
+      <input class="form-control full-width" id="torrent-url" type="text" onkeydown="if (event.keyCode == 13) document.getElementById('start').click()" placeholder="Enter Torrent or Magnet Link"></input>
+    </div>
+    <div class="col-xs-12 col-sm-2 padding-fix">
+      <button type="button" id="start" class="btn btn-success full-width" onclick="start();">Start</button>
+    </div>
+    <div class="col-xs-12 col-sm-2 padding-fix">
+      <button type="button" class="btn btn-danger full-width" onclick="stop();">Stop</button>
+    </div>
+  </div>
+  <br />
+  <div class="row">
+    <div class="col-xs-4 padding-fix">
+      <button type="button" class="btn btn-primary full-width glyphicon glyphicon-step-backward" onclick="backward();"></button>
+    </div>
+    <div class="col-xs-4 padding-fix">
+      <button type="button" id="pause-button" class="btn btn-info full-width glyphicon glyphicon-pause" onclick="pause();"></button>
+    </div>
+    <div class="col-xs-4 padding-fix">
+      <button type="button" class="btn btn-primary full-width glyphicon glyphicon-step-forward" onclick="forward();"></button>
+    </div>
+  </div>
+  <br /><br />
+  <div class="row">
+    <div class="panel panel-default panel-margin-fix">
+    <div class="panel-heading">Search For Torrents</div>
+    <div class="panel-body">
+      <div class="col-xs-9 padding-fix">
+        <input class="form-control full-width" id="torrent-query" type="text" onkeydown="if (event.keyCode == 13) document.getElementById('search-torrents').click()" placeholder="Search"></input>
+      </div>
+      <div class="col-xs-3 padding-fix">
+        <button type="button" id="search-torrents" class="btn btn-warning full-width glyphicon glyphicon-search" onclick="search();"></button>
+      </div>
+      <div class="col-xs-12 padding-fix">
+        <table id="torrent-table" class="table"></table>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
 <script>
-  function play() {
+  var isPaused = true;
+
+  function showPauseIcon(paused) {
+    var pauseButton = document.getElementById('pause-button');
+    if (paused) {
+      pauseButton.className = 'btn btn-info full-width glyphicon glyphicon-pause';
+      isPaused = true;
+    }
+    else {
+      pauseButton.className = 'btn btn-info full-width glyphicon glyphicon-play';
+      isPaused = false;
+    }
+  }
+
+  function start() {
+    showPauseIcon(true);
     var torrentUrlInput = document.getElementById('torrent-url');
     var url = torrentUrlInput.value;
-    torrentUrlInput.value = '';    
+    torrentUrlInput.value = '';
 
     var req = new XMLHttpRequest();
     req.open('POST', 'play', true);
@@ -24,12 +115,14 @@ Torrent URL:
   }
 
   function stop() {
+    showPauseIcon(true);
     var req = new XMLHttpRequest();
     req.open('POST', 'stop', true);
     req.send();
   }
 
   function pause() {
+    showPauseIcon(!isPaused);
     var req = new XMLHttpRequest();
     req.open('POST', 'pause', true);
     req.send();
@@ -41,11 +134,35 @@ Torrent URL:
     req.send();
   }
 
-  function backward() { 
+  function backward() {
     var req = new XMLHttpRequest();
     req.open('POST', 'backward', true);
     req.send();
   }
-</script
+
+  function search() {
+    var torrentQueryInput = document.getElementById('torrent-query');
+    var searchStr = torrentQueryInput.value;
+
+    var req = new XMLHttpRequest();
+    req.onreadystatechange = function() {
+      var torrentTable = document.getElementById('torrent-table');
+      if (req.readyState === 4) {
+        var searchResults = JSON.parse(req.responseText);
+        torrentTable.innerHTML = searchResults.length ? '<thead><tr><th width="50%">Title</th><th width="25%">Seed</th><th width="25%">Leech</th></tr></thead>' : '';
+        searchResults.forEach(function(result) {
+          var title = result.title;
+          var torrentLink = result.torrentLink;
+          var seeds = result.seeds;
+          var leechs = result.leechs;
+          torrentTable.innerHTML += '<tr><td width="50%"><a href="' + torrentLink + '">' + title + '</a></td><td width="25%">' + seeds + '</td><td width="25%">' + leechs + '</td></tr>';
+        });
+      }
+      else { torrentTable.innerHTML = ''; }
+    };
+    req.open('GET', 'query?q=' + searchStr, true);
+    req.send();
+  }
+</script>
 </body>
 </html>

@@ -99,8 +99,18 @@ server.route({
   method: 'GET',
   path: '/',
   handler: function (request, reply) {
-    reply.file(path.join(__dirname, '/index.html'));
+    reply.file(path.join(__dirname, '/public/index.html'));
   }
+});
+
+server.route({
+    method: 'GET',
+    path: '/assets/{param*}',
+    handler: {
+        directory: {
+            path: 'public'
+        }
+    }
 });
 
 server.route({

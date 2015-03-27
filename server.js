@@ -16,7 +16,7 @@ var peerflix = require('peerflix');
 var omx = require('omxctrl');
 
 // Configs
-var PORT = process.argv[2] || 8080;
+var PORT = process.env.PORT || process.argv[2] || 8080;
 var LOG_ENABLED = true;
 
 // Params
@@ -99,18 +99,18 @@ server.route({
   method: 'GET',
   path: '/',
   handler: function (request, reply) {
-    reply.file(path.join(__dirname, '/public/index.html'));
+    return reply.file(path.join(__dirname, 'public/index.html'));
   }
 });
 
 server.route({
-    method: 'GET',
-    path: '/assets/{param*}',
-    handler: {
-        directory: {
-            path: 'public'
-        }
+  method: 'GET',
+  path: '/assets/{param*}',
+  handler: {
+    directory: {
+      path: path.join(__dirname,'public')
     }
+  }
 });
 
 server.route({

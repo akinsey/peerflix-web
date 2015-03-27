@@ -21,7 +21,7 @@ var LOG_ENABLED = true;
 
 // Params
 var connection;
-var states = ['Playing', 'Paused', 'Idle'];
+var states = ['PLAYING', 'PAUSED', 'IDLE'];
 var omxCtrlMap = {
   'pause': 'pause',
   'speedup': 'increaseSpeed',
@@ -182,7 +182,7 @@ server.route({
 
 server.route({
   method: 'POST',
-  path: '/{omx_command}',
+  path: '/omx/{omx_command}',
   handler: function (request, reply) {
     var omxCommand = request.params.omx_command;
     var actualCommand = omxCtrlMap[omxCommand];

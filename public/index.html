@@ -18,37 +18,37 @@
       <div id="loader">
           <span class="spinner"></span>
       </div>
-      <input class="form-control full-width" id="torrent-url" type="text" onkeydown="if (event.keyCode == 13) document.getElementById('start').click()" placeholder="Enter Torrent or Magnet Link"></input>
+      <input class="form-control full-width" id="torrent-url" type="text" placeholder="Enter Torrent or Magnet Link"></input>
     </div>
     <div id="start-wrapper" class="col-xs-12 col-sm-4 padding-fix">
-      <button type="button" id="start" class="btn btn-success full-width" onclick="start();">Start</button>
+      <button type="button" id="start" class="btn btn-success full-width">Start</button>
     </div>
     <div id="stop-wrapper" class="col-xs-12 col-sm-4 padding-fix">
-      <button type="button" class="btn btn-danger full-width" onclick="stop();">Stop</button>
+      <button type="button" id="stop" class="btn btn-danger full-width">Stop</button>
     </div>
   </div>
   <br />
-  <div class="row">
+  <div id="omx-controls" class="row">
     <div class="col-xs-4 padding-fix">
-      <button type="button" class="btn btn-default full-width control-btn glyphicon glyphicon-step-backward" onclick="backward();"></button>
+      <button type="button" id="backward" class="btn btn-default full-width control-btn glyphicon glyphicon-step-backward"></button>
     </div>
     <div class="col-xs-4 padding-fix">
-      <button type="button" id="pause-button" class="btn btn-custom full-width control-btn glyphicon glyphicon-pause" onclick="pause();"></button>
+      <button type="button" id="pause" class="btn btn-custom full-width control-btn glyphicon glyphicon-pause"></button>
     </div>
     <div class="col-xs-4 padding-fix">
-      <button type="button" class="btn btn-default full-width control-btn glyphicon glyphicon-step-forward" onclick="forward();"></button>
+      <button type="button" id="forward" class="btn btn-default full-width control-btn glyphicon glyphicon-step-forward"></button>
     </div>
+    <br /><br />
   </div>
-  <br /><br />
   <div class="row">
     <div class="panel panel-default panel-margin-fix">
     <div class="panel-heading">Search For Torrents</div>
     <div class="panel-body">
       <div class="col-xs-9 padding-fix">
-        <input class="form-control full-width" id="torrent-query" type="text" onkeydown="if (event.keyCode == 13) document.getElementById('search-torrents').click()" placeholder="Search"></input>
+        <input class="form-control full-width" id="torrent-query" type="text" placeholder="Search"></input>
       </div>
       <div class="col-xs-3 padding-fix">
-        <button type="button" id="search-torrents" class="btn btn-primary full-width glyphicon glyphicon-search" onclick="search();"></button>
+        <button type="button" id="search-torrents" class="btn btn-primary full-width glyphicon glyphicon-search"></button>
       </div>
       <div class="col-xs-12 padding-fix">
         <table id="torrent-table" class="table"></table>

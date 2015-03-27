@@ -1,87 +1,105 @@
-var isPaused = true;
+$(document).ready(function() {
 
-function showPauseIcon(paused) {
-  var pauseButton = document.getElementById('pause-button');
-  if (paused) {
-    pauseButton.className = 'btn btn-custom full-width control-btn glyphicon glyphicon-pause';
-    isPaused = true;
-  }
-  else {
-    pauseButton.className = 'btn btn-custom full-width control-btn glyphicon glyphicon-play';
-    isPaused = false;
-  }
-}
+  var isPaused = false;
 
-function start() {
-  document.getElementById('start-wrapper').style.display = 'none';
-  document.getElementById('stop-wrapper').style.display = 'block';
-  document.getElementById('loader').style.display = 'inline-block';
-  showPauseIcon(true);
-  var torrentUrlInput = document.getElementById('torrent-url');
-  var url = torrentUrlInput.value;
+  (function poll(){
+    var updateStatus = function() {
+      $.ajax({ url: 'status', success: function(status) {
+        if (status === 'PAUSED') {
+          isPaused = true;
+          $('#stop-wrapper').show();
+          $('#start-wrapper').hide();
+          $('#omx-controls').show();
+          $('#loader').hide();
+        }
+        else if (status === 'IDLE') {
+          isPaused = true;
+          $('#omx-controls').hide();
+        }
+        else {
+          isPaused = false;
+          $('#stop-wrapper').show();
+          $('#start-wrapper').hide();
+          $('#omx-controls').show();
+          $('#loader').hide();
+        }
+      }, dataType: 'text' });
+    };
 
-  var req = new XMLHttpRequest();
+    updateStatus();
+    setInterval(function() {
+      updateStatus();
+    }, 3000);
+  })();
 
-  req.onreadystatechange = function() {
-    var loader = document.getElementById('loader');
-    loader.style.display = 'none';
-    torrentUrlInput.value = '';
+  var showPauseIcon = function(paused) {
+    if (paused) {
+      $('#pause').removeClass('glyphicon-play');
+      $('#pause').addClass('glyphicon-pause');
+      isPaused = true;
+    }
+    else {
+      $('#pause').removeClass('glyphicon-pause');
+      $('#pause').addClass('glyphicon-play');
+      isPaused = false;
+    }
   };
 
-  req.open('POST', 'play', true);
-  req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-  req.send('url=' + url);
-}
+  $('#start').click(function() {
+    $('#start-wrapper').hide();
+    $('#stop-wrapper').show();
+    $('#loader').show();
+    showPauseIcon(true);
 
-function stop() {
-  document.getElementById('stop-wrapper').style.display = 'none';
-  document.getElementById('start-wrapper').style.display = 'block';
-  document.getElementById('loader').style.display = 'none';
-  showPauseIcon(true);
-  var req = new XMLHttpRequest();
-  req.open('POST', 'stop', true);
-  req.send();
-}
+    $.post('play', { 'url': $('#torrent-url').val() });
+  });
 
-function pause() {
-  showPauseIcon(!isPaused);
-  var req = new XMLHttpRequest();
-  req.open('POST', 'pause', true);
-  req.send();
-}
+  $('#torrent-url').keydown(function(e) {
+    if (e.which === 13) { $('#start').click(); }
+  });
 
-function forward() {
-  var req = new XMLHttpRequest();
-  req.open('POST', 'forward', true);
-  req.send();
-}
+  $('#stop').click(function() {
+    $('#stop-wrapper').hide();
+    $('#start-wrapper').show();
+    $('#loader').hide();
+    showPauseIcon(true);
+    $.post('stop');
+  });
 
-function backward() {
-  var req = new XMLHttpRequest();
-  req.open('POST', 'backward', true);
-  req.send();
-}
+  $('#backward').click(function() {
+    $.post('backward');
+  });
 
-function search() {
-  var torrentQueryInput = document.getElementById('torrent-query');
-  var searchStr = torrentQueryInput.value;
+  $('#pause').click(function() {
+    showPauseIcon(!isPaused);
+    $.post('pause');
+  });
 
-  var req = new XMLHttpRequest();
-  req.onreadystatechange = function() {
-    var torrentTable = document.getElementById('torrent-table');
-    if (req.readyState === 4) {
-      var searchResults = JSON.parse(req.responseText);
-      torrentTable.innerHTML = searchResults.length ? '<thead><tr><th width="50%">Title</th><th width="25%">Seed</th><th width="25%">Leech</th></tr></thead>' : '';
+  $('#forward').click(function() {
+    $.post('forward');
+  });
+
+  $('#search-torrents').click(function() {
+    var searchStr = $('#torrent-query').val();
+    if (!searchStr.length) { $('#torrent-table').empty(); return; }
+    $.get('query', { 'q': searchStr })
+    .done(function(searchResults) {
+      $('#torrent-table').html(searchResults.length ? '<thead><tr><th width="60%">Title</th><th width="15%"><span class="glyphicon glyphicon-menu-up"></span></th><th width="15%"><span class="glyphicon glyphicon-menu-down"></span></th></tr></thead>' : '');
       searchResults.forEach(function(result) {
         var title = result.title;
         var torrentLink = result.torrentLink;
         var seeds = result.seeds;
         var leechs = result.leechs;
-        torrentTable.innerHTML += '<tr><td width="50%"><a href="' + torrentLink + '">' + title + '</a></td><td width="25%">' + seeds + '</td><td width="25%">' + leechs + '</td></tr>';
+        $('#torrent-table').append('<tr><td style="word-break: break-all;"><a href="' + torrentLink + '">' + title + '</a></td><td><span style="color:green;">' + seeds + '</span></td><td><span style="color:red;">' + leechs + '</span></td></tr>');
       });
-    }
-    else { torrentTable.innerHTML = ''; }
-  };
-  req.open('GET', 'query?q=' + searchStr, true);
-  req.send();
-}
+      if (!searchResults.length) { $('#torrent-table').empty(); }
+    })
+    .fail(function() {
+      $('#torrent-table').empty();
+    });
+  });
+
+  $('#torrent-query').keydown(function(e) {
+    if (e.which === 13) { $('#search-torrents').click(); }
+  });
+});

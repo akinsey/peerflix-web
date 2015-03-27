@@ -50,9 +50,9 @@ $(document).ready(function() {
     $('#stop-wrapper').show();
     $('#loader').show();
     showPauseIcon(true);
-
-    $.post('play', { 'url': $('#torrent-url').val() })
-    .always(function() { $('#torrent-url').val(''); })
+    var url = $('#torrent-url').val();
+    $('#torrent-url').val('');
+    $.post('play', { 'url': url })
     .fail(function() { $('#loader').hide(); });
   });
 

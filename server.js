@@ -182,7 +182,7 @@ server.route({
 
 server.route({
   method: 'POST',
-  path: '/omx/{omx_command}',
+  path: '/{omx_command}',
   handler: function (request, reply) {
     var omxCommand = request.params.omx_command;
     var actualCommand = omxCtrlMap[omxCommand];

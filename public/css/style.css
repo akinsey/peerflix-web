@@ -11,6 +11,10 @@ body {
 #torrent-table > thead > tr > th {
   padding-top: 20px;
 }
+#omx-controls {
+  display: none;
+  margin-bottom: 30px;
+}
 #stop-wrapper {
   display: none;
 }

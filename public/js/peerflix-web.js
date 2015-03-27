@@ -51,7 +51,9 @@ $(document).ready(function() {
     $('#loader').show();
     showPauseIcon(true);
 
-    $.post('play', { 'url': $('#torrent-url').val() });
+    $.post('play', { 'url': $('#torrent-url').val() })
+    .always(function() { $('#torrent-url').val(''); })
+    .fail(function() { $('#loader').hide(); });
   });
 
   $('#torrent-url').keydown(function(e) {

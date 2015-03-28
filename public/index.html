@@ -9,15 +9,20 @@
 <body>
 
 <div class="container">
+  <div class="row">
+    <div class="col-xs-12">
+      <h3 id="title">Peerflix Web</h3>
+    </div>
+  </div>
   <div id="omx-controls" class="row">
     <div class="col-xs-4 padding-fix">
-      <button type="button" id="backward" class="btn btn-primary full-width control-btn glyphicon glyphicon-step-backward"></button>
+      <button type="button" id="backward" class="btn full-width control-btn glyphicon glyphicon-step-backward"></button>
     </div>
     <div class="col-xs-4 padding-fix">
-      <button type="button" id="pause" class="btn btn-primary full-width control-btn glyphicon glyphicon-pause"></button>
+      <button type="button" id="pause" class="btn full-width control-btn glyphicon glyphicon-pause"></button>
     </div>
     <div class="col-xs-4 padding-fix">
-      <button type="button" id="forward" class="btn btn-primary full-width control-btn glyphicon glyphicon-step-forward"></button>
+      <button type="button" id="forward" class="btn full-width control-btn glyphicon glyphicon-step-forward"></button>
     </div>
   </div>
   <div class="row">
@@ -28,10 +33,10 @@
       <input class="form-control full-width" id="torrent-url" type="text" placeholder="Enter Torrent or Magnet Link"></input>
     </div>
     <div id="start-wrapper" class="col-xs-12 col-sm-4 padding-fix">
-      <button type="button" id="start" class="btn btn-success start-btn full-width">Start</button>
+      <button type="button" id="start" class="btn start-btn full-width">Start</button>
     </div>
     <div id="stop-wrapper" class="col-xs-12 col-sm-4 padding-fix">
-      <button type="button" id="stop" class="btn btn-danger stop-btn full-width">Stop</button>
+      <button type="button" id="stop" class="btn stop-btn full-width">Stop</button>
     </div>
   </div>
   <br />
@@ -43,7 +48,7 @@
         <input class="form-control full-width" id="torrent-query" type="text" placeholder="Search"></input>
       </div>
       <div class="col-xs-3 padding-fix">
-        <button type="button" id="search-torrents" class="btn btn-primary full-width search-btn glyphicon glyphicon-search"></button>
+        <button type="button" id="search-torrents" class="btn full-width search-btn glyphicon glyphicon-search"></button>
       </div>
       <div class="col-xs-12 padding-fix">
         <table id="torrent-table" class="table"></table>

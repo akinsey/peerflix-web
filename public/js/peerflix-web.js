@@ -2,37 +2,25 @@ $(document).ready(function() {
 
   var isPaused = false;
 
-  (function poll(){
-    var firstRun = true;
-    var updateStatus = function() {
-      $.ajax({ url: 'status', success: function(status) {
-        if (status === 'PAUSED') {
-          $('#stop-wrapper').show();
-          $('#start-wrapper').hide();
-          $('#omx-controls').show();
-          $('#loader').hide();
-        }
-        else if (status === 'IDLE') {
-          isPaused = true;
-          $('#omx-controls').hide();
-        }
-        else {
-          $('#stop-wrapper').show();
-          $('#start-wrapper').hide();
-          $('#omx-controls').show();
-          $('#loader').hide();
-          if (firstRun) { // Show play button if already playing
-            showPauseIcon(false);
-            firstRun = false;
-          }
-        }
-      }, dataType: 'text' });
-    };
-
-    updateStatus();
-    setInterval(function() {
-      updateStatus();
-    }, 5000);
+  (function getInitialStatus(){
+    $.ajax({ url: 'status', success: function(status) {
+      if (status === 'PAUSED') {
+        $('#stop-wrapper').show();
+        $('#start-wrapper').hide();
+        $('#omx-controls').show();
+        $('#loader').hide();
+      }
+      else if (status === 'IDLE') {
+        isPaused = true;
+        $('#omx-controls').hide();
+      }
+      else {
+        $('#stop-wrapper').show();
+        $('#start-wrapper').hide();
+        $('#omx-controls').show();
+        $('#loader').hide();
+      }
+    }, dataType: 'text' });
   })();
 
   var showPauseIcon = function(paused) {

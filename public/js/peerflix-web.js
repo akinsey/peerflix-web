@@ -22,7 +22,7 @@ $(document).ready(function() {
           $('#omx-controls').show();
           $('#loader').hide();
           if (firstRun) { // Show play button if already playing
-            showPauseIcon(false);
+            showPauseIcon(true);
             firstRun = false;
           }
         }

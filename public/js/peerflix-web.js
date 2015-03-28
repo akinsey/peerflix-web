@@ -2,7 +2,7 @@ $(document).ready(function() {
 
   var isPaused = false;
 
-  (function poll(){
+  (function poll() {
     var firstRun = true;
     var updateStatus = function() {
       $.ajax({ url: 'status', success: function(status) {
@@ -93,13 +93,13 @@ $(document).ready(function() {
     if (!searchStr.length) { $('#torrent-table').empty(); return; }
     $.get('query', { 'q': searchStr })
     .done(function(searchResults) {
-      $('#torrent-table').html(searchResults.length ? '<thead><tr><th width="60%">Title</th><th width="15%"><span class="glyphicon glyphicon-menu-up"></span></th><th width="15%"><span class="glyphicon glyphicon-menu-down"></span></th></tr></thead>' : '');
+      $('#torrent-table').html(searchResults.length ? '<thead><tr><th width="80%">Title</th><th width="10%" style="text-align: center;"><span class="glyphicon glyphicon-menu-up"></span></th><th width="10%" style="text-align: center;"><span class="glyphicon glyphicon-menu-down"></span></th></tr></thead>' : '');
       searchResults.forEach(function(result) {
         var title = result.title;
         var torrentLink = result.torrentLink;
         var seeds = result.seeds;
         var leechs = result.leechs;
-        $('#torrent-table').append('<tr><td style="word-break: break-all;"><a href="' + torrentLink + '">' + title + '</a></td><td><span style="color:green;">' + seeds + '</span></td><td><span style="color:red;">' + leechs + '</span></td></tr>');
+        $('#torrent-table').append('<tr><td style="word-break: break-all;"><a href="' + torrentLink + '">' + title + '</a></td><td style="text-align: center;"><span style="color:#00CB95;">' + seeds + '</span></td><td style="text-align: center;"><span style="color:#FF646C;">' + leechs + '</span></td></tr>');
       });
       if (!searchResults.length) { $('#torrent-table').empty(); }
     })

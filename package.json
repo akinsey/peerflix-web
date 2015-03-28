@@ -1,6 +1,6 @@
 {
   "name": "peerflix-web",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Web interface to control peerflix",
   "main": "server.js",
   "scripts": {
@@ -15,7 +15,9 @@
     "torrent",
     "stream",
     "web",
-    "interface"
+    "interface",
+    "raspberry",
+    "pi"
   ],
   "author": "Anthony Kinsey",
   "license": "MIT",

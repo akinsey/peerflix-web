@@ -1,22 +1,21 @@
 # Peerflix Web
-Easily stream torrents to a Raspberry Pi via your phone or tablet. Peerflix web is a basic web interface to remotely stream torrents to a raspberry pi. This has only been tested on Raspbian running on a Raspberry Pi 2.
+Web interface to remotely stream torrents using peerflix to a Raspberry Pi. This has only been tested on Raspbian running on a Raspberry Pi 2.
 
-![Peerflix web](http://i.imgur.com/tiihlOO.png)
+![Peerflix web](http://i.imgur.com/U1pEcOE.png)
+
+![Peerflix web](http://i.imgur.com/OWom6Mi.png)
 
 ###Setup
-```sh
-$ npm install peerflix-web
-```
-or
 ```sh
 $ git clone git@github.com:akinsey/peerflix-web.git
 $ cd peerflix-web
 $ npm install
-$ node index
+$ node server
 ```
+`NOTE:` This project can be setup to run from /etc/init.d so it will automatically start up with your Raspberry Pi
+
 ###Requirements
-* raspbian - raspberry pi operating system
-* omxplayer - default media player for raspbian
+* `omxplayer` - default media player for raspbian
 
 
 ###License

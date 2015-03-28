@@ -3,10 +3,10 @@ $(document).ready(function() {
   var isPaused = false;
 
   (function poll(){
+    var firstRun = true;
     var updateStatus = function() {
       $.ajax({ url: 'status', success: function(status) {
         if (status === 'PAUSED') {
-          isPaused = true;
           $('#stop-wrapper').show();
           $('#start-wrapper').hide();
           $('#omx-controls').show();
@@ -17,11 +17,14 @@ $(document).ready(function() {
           $('#omx-controls').hide();
         }
         else {
-          isPaused = false;
           $('#stop-wrapper').show();
           $('#start-wrapper').hide();
           $('#omx-controls').show();
           $('#loader').hide();
+          if (firstRun) { // Show play button if already playing
+            showPauseIcon(false);
+            firstRun = false;
+          }
         }
       }, dataType: 'text' });
     };

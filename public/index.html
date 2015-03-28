@@ -2,7 +2,7 @@
 <head>
 <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
 <link href="assets/css/style.css" rel="stylesheet">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimal-ui">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <title>Peerflix Web</title>
@@ -10,9 +10,15 @@
 <body>
 
 <div class="container">
-  <div class="row">
-    <div class="col-xs-12 thin-dotted-underline">
-      <h2 class="title">Peerflix Web</h2>
+  <div id="omx-controls" class="row">
+    <div class="col-xs-4 padding-fix">
+      <button type="button" id="backward" class="btn btn-primary full-width control-btn glyphicon glyphicon-step-backward"></button>
+    </div>
+    <div class="col-xs-4 padding-fix">
+      <button type="button" id="pause" class="btn btn-primary full-width control-btn glyphicon glyphicon-pause"></button>
+    </div>
+    <div class="col-xs-4 padding-fix">
+      <button type="button" id="forward" class="btn btn-primary full-width control-btn glyphicon glyphicon-step-forward"></button>
     </div>
   </div>
   <div class="row">
@@ -23,24 +29,13 @@
       <input class="form-control full-width" id="torrent-url" type="text" placeholder="Enter Torrent or Magnet Link"></input>
     </div>
     <div id="start-wrapper" class="col-xs-12 col-sm-4 padding-fix">
-      <button type="button" id="start" class="btn btn-success full-width">Start</button>
+      <button type="button" id="start" class="btn btn-success start-btn full-width">Start</button>
     </div>
     <div id="stop-wrapper" class="col-xs-12 col-sm-4 padding-fix">
-      <button type="button" id="stop" class="btn btn-danger full-width">Stop</button>
+      <button type="button" id="stop" class="btn btn-danger stop-btn full-width">Stop</button>
     </div>
   </div>
   <br />
-  <div id="omx-controls" class="row">
-    <div class="col-xs-4 padding-fix">
-      <button type="button" id="backward" class="btn btn-default full-width control-btn glyphicon glyphicon-step-backward"></button>
-    </div>
-    <div class="col-xs-4 padding-fix">
-      <button type="button" id="pause" class="btn btn-custom full-width control-btn glyphicon glyphicon-pause"></button>
-    </div>
-    <div class="col-xs-4 padding-fix">
-      <button type="button" id="forward" class="btn btn-default full-width control-btn glyphicon glyphicon-step-forward"></button>
-    </div>
-  </div>
   <div class="row">
     <div class="panel panel-default panel-margin-fix">
     <div class="panel-heading">Search For Torrents</div>
@@ -49,7 +44,7 @@
         <input class="form-control full-width" id="torrent-query" type="text" placeholder="Search"></input>
       </div>
       <div class="col-xs-3 padding-fix">
-        <button type="button" id="search-torrents" class="btn btn-primary full-width glyphicon glyphicon-search"></button>
+        <button type="button" id="search-torrents" class="btn btn-primary full-width search-btn glyphicon glyphicon-search"></button>
       </div>
       <div class="col-xs-12 padding-fix">
         <table id="torrent-table" class="table"></table>

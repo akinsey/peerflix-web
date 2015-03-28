@@ -29,7 +29,7 @@ $(document).ready(function() {
     updateStatus();
     setInterval(function() {
       updateStatus();
-    }, 3000);
+    }, 5000);
   })();
 
   var showPauseIcon = function(paused) {
@@ -53,7 +53,11 @@ $(document).ready(function() {
     var url = $('#torrent-url').val();
     $('#torrent-url').val('');
     $.post('play', { 'url': url })
-    .fail(function() { $('#loader').hide(); });
+    .fail(function() {
+      $('#loader').hide();
+      $('#stop-wrapper').hide();
+      $('#start-wrapper').show();
+    });
   });
 
   $('#torrent-url').keydown(function(e) {

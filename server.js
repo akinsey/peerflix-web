@@ -55,11 +55,11 @@ var clearTorrentCache = function() {
 };
 
 var stop = function() {
+  clearTorrentCache();
   if (!connection) { return; }
   connection.destroy();
   connection = null;
   omx.stop();
-  clearTorrentCache();
 };
 
 omx.on('ended', function() {
@@ -72,9 +72,9 @@ server.connection({ port: PORT });
 
 if (LOG_ENABLED) {
   var options = { logRequestPayload: true };
-  var opsPath = path.normalize(__dirname +  '/logs/operations');
-  var errsPath = path.normalize(__dirname + '/logs/errors');
-  var reqsPath = path.normalize(__dirname + '/logs/requests');
+  var opsPath = path.normalize(__dirname +  '/log/operation');
+  var errsPath = path.normalize(__dirname + '/log/error');
+  var reqsPath = path.normalize(__dirname + '/log/request');
   mkdirp.sync(opsPath);
   mkdirp.sync(errsPath);
   mkdirp.sync(reqsPath);
@@ -130,7 +130,7 @@ server.route({
         });
 
         connection.server.on('listening', function() {
-          if (!connection) { return reply(Boom.badRequest('Play was interrupted')); }
+          if (!connection) { return reply(Boom.badRequest('Stream was interrupted')); }
           omx.play('http://127.0.0.1:' + connection.server.address().port + '/');
           return reply();
         });

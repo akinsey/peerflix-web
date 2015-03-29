@@ -39,7 +39,7 @@ body {
   border-color: #FF646C;
   background-color: #FF646C;
 }
-.control-btn, .control-btn:active, .control-btn:focus {
+.control-btn, .control-btn:hover, .control-btn:active, .control-btn:focus {
   color: #777;
   height: 75px;
   border: 1px solid #ccc;

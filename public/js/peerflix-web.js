@@ -11,6 +11,10 @@ $(document).ready(function() {
           $('#start-wrapper').hide();
           $('#omx-controls').show();
           $('#loader').hide();
+          if (firstRun) { // Show play button if already paused
+            showPauseIcon(false);
+            firstRun = false;
+          }
         }
         else if (status === 'IDLE') {
           isPaused = true;
@@ -21,7 +25,7 @@ $(document).ready(function() {
           $('#start-wrapper').hide();
           $('#omx-controls').show();
           $('#loader').hide();
-          if (firstRun) { // Show play button if already playing
+          if (firstRun) { // Show pause button if already playing
             showPauseIcon(true);
             firstRun = false;
           }

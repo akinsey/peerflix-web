@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var Hapi = require('hapi');
 var Boom = require('boom');
 var Good = require('good');
@@ -61,10 +63,6 @@ var stop = function() {
   connection = null;
   omx.stop();
 };
-
-omx.on('ended', function() {
-  stop();
-});
 
 // Server Setup
 var server = new Hapi.Server();
@@ -132,6 +130,7 @@ server.route({
         connection.server.on('listening', function() {
           if (!connection) { return reply(Boom.badRequest('Stream was interrupted')); }
           omx.play('http://127.0.0.1:' + connection.server.address().port + '/');
+          omx.on('ended', function() { stop(); });
           return reply();
         });
       });

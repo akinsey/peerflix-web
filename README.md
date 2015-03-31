@@ -12,6 +12,13 @@ This project is an updated version of [torrentcast](https://github.com/xat/torre
 
 ##Setup
 
+**npm Installation**
+```sh
+$ npm install -g peerflix-web
+$ peerflix-web
+```
+or
+
 **Manual Installation**
 ```sh
 $ git clone git@github.com:akinsey/peerflix-web.git

@@ -1,6 +1,6 @@
 {
   "name": "peerflix-web",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Web interface to control peerflix",
   "main": "server.js",
   "scripts": {
@@ -43,6 +43,6 @@
     "rimraf": "^2.3.2"
   },
   "bin" : {
-    "peerflix-web" : "node ./server.js"
+    "peerflix-web" : "./server.js"
   }
 }

@@ -43,6 +43,6 @@
     "rimraf": "^2.3.2"
   },
   "bin" : {
-    "peerflix-web" : "./server.js"
+    "peerflix-web" : "node ./server.js"
   }
 }

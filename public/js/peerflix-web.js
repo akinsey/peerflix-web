@@ -103,13 +103,19 @@ $(document).ready(function() {
         var torrentLink = result.torrentLink;
         var seeds = result.seeds;
         var leechs = result.leechs;
-        $('#torrent-table').append('<tr><td style="word-break: break-all;"><a href="' + torrentLink + '">' + title + '</a></td><td style="text-align: center;"><span style="color:#00CB95;">' + seeds + '</span></td><td style="text-align: center;"><span style="color:#FF646C;">' + leechs + '</span></td></tr>');
+        $('#torrent-table').append('<tr><td style="word-break: break-all;"><a class="torrent-link" href="' + torrentLink + '">' + title + '</a></td><td style="text-align: center;"><span style="color:#00CB95;">' + seeds + '</span></td><td style="text-align: center;"><span style="color:#FF646C;">' + leechs + '</span></td></tr>');
       });
       if (!searchResults.length) { $('#torrent-table').empty(); }
     })
     .fail(function() {
       $('#torrent-table').empty();
     });
+  });
+
+  $('#torrent-table').on('click', '.torrent-link', function(e) {
+    e.preventDefault();
+    $('#torrent-url').val( $(this).attr('href') );
+    $('#start').click();
   });
 
   $('#torrent-query').keydown(function(e) {

@@ -16,9 +16,10 @@ var fs = require('fs');
 var kickass = require('kickass-torrent');
 var peerflix = require('peerflix');
 var omx = require('omxctrl');
+var serverArgs = require('minimist')(process.argv.slice(2));
 
 // Configs
-var PORT = process.env.PORT || process.argv[2] || 8080;
+var PORT = process.env.PORT || serverArgs.port || 8080;
 var LOG_ENABLED = true;
 
 // Params

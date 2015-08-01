@@ -34,6 +34,7 @@
     "hapi": "^8.4.0",
     "ip": "^0.3.2",
     "kickass-torrent": "akinsey/node-kickass-torrent",
+    "minimist": "^1.1.2",
     "mkdirp": "^0.5.0",
     "node-ip": "^0.1.0",
     "node-uuid": "^1.4.1",
@@ -42,7 +43,7 @@
     "read-torrent": "^1.0.0",
     "rimraf": "^2.3.2"
   },
-  "bin" : {
-    "peerflix-web" : "./server.js"
+  "bin": {
+    "peerflix-web": "./server.js"
   }
 }

@@ -16,10 +16,29 @@ var fs = require('fs');
 var kickass = require('kickass-torrent');
 var peerflix = require('peerflix');
 var omx = require('omxctrl');
+var execSync = require('child_process').execSync;
+var cliArguments = require('minimist')(process.argv.slice(2));
 
+if (cliArguments.help) {
+  console.log([
+    'You can pass several options to the server command:',
+    '  --help: this message',
+    '  --port: the port to use for the server (defaults to 8080)',
+    '  --verbose: show the server log (defaults to true)',
+    '  --subtitles: when selecting a torrent to watch, try to download matching subtitles',
+    '    with `subliminal` python program (defaults to false)',
+    '  --subliminal_bin: `subliminal` path/executable (defaults to \'subliminal\')',
+    '  --subliminal_args: arguments to pass to the `subliminal download` command (-s option is forced)',
+    '',
+    '  Example:',
+    '    node server --port 8081 --subtitles --subliminal_args="-l fr"'
+  ].join('\n'));
+  process.exit(0);
+}
 // Configs
-var PORT = process.env.PORT || process.argv[2] || 8080;
-var LOG_ENABLED = true;
+var PORT = process.env.PORT || cliArguments.port || 8080;
+var LOG_ENABLED = cliArguments.verbose !== undefined ? !!cliArguments.verbose : true;
+var USE_SUBTITLES = !!cliArguments.subtitles;
 
 // Params
 var connection;
@@ -54,6 +73,40 @@ var clearTorrentCache = function() {
       }
     });
   });
+};
+
+/**
+ * download the best subtitles file possible through subliminal for the given torrent
+ *
+ * note: the subliminal -s is forced
+ */
+var subtitles = function(torrent) {
+  var bin = cliArguments.subliminal_bin || 'subliminal';
+  var options = '-s ' + (cliArguments.subliminal_args || '');
+  var subliminalCommand = [bin, 'download', options, torrent.name].join(' ');
+  var subliminalOutput;
+  try {
+    subliminalOutput = execSync(subliminalCommand, { cwd: tempDir });
+  } catch (e) {
+    console.log("Error when executing subliminal: " + e.message);
+    return '';
+  }
+  //we assume the file created by subliminal is the last .srt file in the temp dir
+  //we get all the srt files in the temp dir and keep the last created
+  //we might need to do better than this... but I find no sure way of getting the
+  //specific file created by subliminal directly
+  var fileList;
+  try {
+    fileList = execSync('ls -1At *.srt', { cwd: tempDir, encoding: 'utf8' }).trim();
+  } catch (e) {
+    console.log("Error when trying to retrieve subtitle file: " + e.message);
+    return '';
+  }
+  fileList = fileList.split('\n'); //each file is on its own line (-1 option of ls) so we split by newline
+  var filename = fileList[0]; //ls is ordered by modification time (-i option) so we get the first file of list
+  var peerflixFilename = 'peerflix-' + filename; //prefixing filename with peerflix to delete it with torrent cache
+  fs.renameSync(path.join(tempDir, filename), path.join(tempDir, peerflixFilename));
+  return peerflixFilename;
 };
 
 var stop = function() {
@@ -121,6 +174,11 @@ server.route({
         if (err) { return reply(Boom.badRequest(err)); }
         if (connection) { stop(); }
 
+        var omxOptions = [];
+        if (USE_SUBTITLES) {
+          omxOptions.push('--subtitles', subtitles(torrent));
+        }
+
         connection = peerflix(torrent, {
           connections: 100,
           path: path.join(tempDir, 'peerflix-' + uuid.v4()),
@@ -129,7 +187,7 @@ server.route({
 
         connection.server.on('listening', function() {
           if (!connection) { return reply(Boom.badRequest('Stream was interrupted')); }
-          omx.play('http://127.0.0.1:' + connection.server.address().port + '/');
+          omx.play('http://127.0.0.1:' + connection.server.address().port + '/', omxOptions);
           omx.on('ended', function() { stop(); });
           return reply();
         });

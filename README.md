@@ -27,6 +27,10 @@ $ npm install
 $ node server
 ```
 
+###Server options
+
+You can pass several options when starting the server. You can check what's available through the `node server --help` command. Mostly, it allows you to have subtitles automatically downloaded thanks to [subliminal](https://github.com/Diaoul/subliminal).
+
 **Running on startup**
 
 This project can be setup to run from /etc/init.d so it will automatically start up with your Raspberry Pi. Edit the custom configs at the top of the `example.peerflix-web` file and rename and move the script to `/etc/init.d/peerflix-web`. Once in the init.d directory, you can control the server using the following commands:
@@ -44,6 +48,7 @@ Currently this project is designed specifically to work with omxplayer running o
 * `node`
 * `npm`
 * `omxplayer` - default media player for raspbian
+* [`subliminal`](https://github.com/Diaoul/subliminal) when using the `--subtitles` option.
 
 ##License
 MIT

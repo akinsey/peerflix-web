@@ -21,7 +21,7 @@ var cliArguments = require('minimist')(process.argv.slice(2));
 
 // Configs
 var PORT = process.env.PORT || cliArguments.port || 8080;
-var LOG_ENABLED = true;
+var LOG_ENABLED = cliArguments.verbose !== undefined ? !!cliArguments.verbose : true;
 var USE_SUBTITLES = !!cliArguments.subtitles;
 
 // Params

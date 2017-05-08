@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
 var Hapi = require('hapi');
+var Inert = require('inert');
 var Boom = require('boom');
 var Good = require('good');
 var GoodFile = require('good-file');
 var GoodConsole = require('good-console');
+var GoodSqueeze = require('good-squeeze');
 var ip = require('ip');
 var rimraf = require('rimraf');
 var mkdirp = require('mkdirp');
@@ -13,7 +15,6 @@ var tempDir = require('os').tmpdir();
 var readTorrent = require('read-torrent');
 var uuid = require('node-uuid');
 var fs = require('fs');
-var kickass = require('kickass-torrent');
 var peerflix = require('peerflix');
 
 // Configs
@@ -49,23 +50,56 @@ var stop = function() {
 // Server Setup
 var server = new Hapi.Server();
 server.connection({ port: PORT });
+server.register(Inert, () => {});
 
 if (LOG_ENABLED) {
-	var options = { logRequestPayload: true };
+	var options = {};
 	var opsPath = path.normalize(__dirname +  '/log/operation');
 	var errsPath = path.normalize(__dirname + '/log/error');
 	var reqsPath = path.normalize(__dirname + '/log/request');
-	mkdirp.sync(opsPath);
-	mkdirp.sync(errsPath);
-	mkdirp.sync(reqsPath);
-	var configWithPath = function(path) {
-		return { path: path, extension: 'log', rotate: 'daily', format: 'YYYY-MM-DD-X', prefix:'peerflix-web' };
+
+	options.reporters = {
+		consoleReporter: [{
+			module: 'good-squeeze',
+			name: 'Squeeze',
+			args: [{ log: '*', response: '*' }]
+		}, {
+			module: 'good-console'
+		}, 'stdout'],
+		opsReporter: [{
+			module: 'good-squeeze',
+			name: 'Squeeze',
+			args: [{ log: '*', ops: '*' }]
+		}, {
+			module: 'good-squeeze',
+			name: 'SafeJson'
+		}, {
+			module: 'good-file',
+			args: [opsPath]
+		}],
+		errsReporter: [{
+			module: 'good-squeeze',
+			name: 'Squeeze',
+			args: [{ log: '*', error: '*' }]
+		}, {
+			module: 'good-squeeze',
+			name: 'SafeJson'
+		}, {
+			module: 'good-file',
+			args: [errsPath]
+		}],
+		reqsReporter: [{
+			module: 'good-squeeze',
+			name: 'Squeeze',
+			args: [{ log: '*', response: '*' }]
+		}, {
+			module: 'good-squeeze',
+			name: 'SafeJson'
+		}, {
+			module: 'good-file',
+			args: [reqsPath]
+		}]
 	};
-	var consoleReporter = new GoodConsole({ log: '*', response: '*' });
-	var opsReporter = new GoodFile(configWithPath(opsPath), { log: '*', ops: '*' });
-	var errsReporter = new GoodFile(configWithPath(errsPath), { log: '*', error: '*' });
-	var reqsReporter = new GoodFile(configWithPath(reqsPath), { log: '*', response: '*' });
-	options.reporters = [ consoleReporter, opsReporter, errsReporter, reqsReporter ];
 	server.register({ register: Good, options: options}, function(err) { if (err) { throw(err); } });
 }
 
@@ -141,26 +175,5 @@ server.route({
 	handler: function (request, reply) {
 		return reply(
 		);
-	}
-});
-
-server.route({
-	method: 'GET',
-	path: '/query',
-	handler: function (request, reply) {
-		var query = request.query.q;
-		if (query) {
-			kickass(query, function(err, response){
-				if (err) { return reply(Boom.badRequest(err)); }
-				var filteredResults = [];
-				response.list.forEach(function(result) {
-					if (result.category === 'TV' || result.category === 'Movies') {
-						filteredResults.push(result);
-					}
-				});
-				return reply(filteredResults);
-			});
-		}
-		else { return reply(Boom.badRequest('Torrent query string must be present')); }
 	}
 });

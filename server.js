@@ -18,11 +18,13 @@ var fs = require('fs');
 var peerflix = require('peerflix');
 
 // Configs
-var PORT = process.env.PORT || process.argv[2] || 8080;
-var LOG_ENABLED = true;
+const PORT = process.env.PORT || process.argv[2] || 8080;
+const LOG_ENABLED = true;
+const MAX_CONNS = process.env.MAX_CONNS || 5;
 
 // Params
-var connection;
+var connection = [];
+var conindex = 0;
 var states = ['PLAYING', 'PAUSED', 'IDLE'];
 
 // Helper Methods
@@ -42,9 +44,11 @@ var clearTorrentCache = function() {
 
 var stop = function() {
 	clearTorrentCache();
-	if (!connection) { return; }
-	connection.destroy();
-	connection = null;
+	if (!connection[conindex])
+		return;
+
+	connection[conindex].destroy();
+	connection[conindex--] = null;
 };
 
 // Server Setup
@@ -135,22 +139,25 @@ server.route({
 		if (torrentUrl) {
 			readTorrent(torrentUrl, function(err, torrent) {
 				if (err) { return reply(Boom.badRequest(err)); }
-				if (connection) { stop(); }
+				if (connection.length >= MAX_CONNS)
+					return reply('No more connections allowed');
 
-				connection = peerflix(torrent, {
+				connection[++conindex] = peerflix(torrent, {
 					connections: 100,
 					path: path.join(tempDir, 'peerflix-' + uuid.v4()),
 					buffer: (1.5 * 1024 * 1024).toString()
 				});
 
-				connection.server.once('error', function() {
+				connection[conindex].server.once('error', function() {
 					engine.server.listen(0);
 				});
 
-				connection.server.on('listening', function() {
-					if (!connection) { return reply(Boom.badRequest('Stream was interrupted')); }
-					console.log(connection.server.address());
-					return reply({ port: connection.server.address().port });
+				connection[conindex].server.on('listening', function() {
+					if (!connection[conindex])
+						return reply(Boom.badRequest('Stream was interrupted'));
+
+					console.log(connection[conindex].server.address());
+					return reply({ port: connection[conindex].server.address().port });
 				});
 			});
 		}

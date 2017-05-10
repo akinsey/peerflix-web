@@ -149,7 +149,7 @@ server.route({
 				});
 
 				connection[conindex].server.once('error', function() {
-					engine.server.listen(0);
+					connection[conindex].server.listen(0);
 				});
 
 				connection[conindex].server.on('listening', function() {
@@ -180,7 +180,20 @@ server.route({
 	method: 'GET',
 	path: '/status',
 	handler: function (request, reply) {
-		return reply(
-		);
+		var res = []
+
+		connection.forEach(function (conn) {
+			res.push({
+				downloadSpeed: conn.swarm.downloadSpeed(),
+				uploadSpeed: conn.swarm.uploadSpeed(),
+				paused: conn.swarm.paused,
+				downloaded: conn.swarm.downloaded,
+				uploaded: conn.swarm.uploaded,
+				name: conn.torrent.name,
+				size: conn.torrent.length
+			});
+		});
+
+		return reply(res);
 	}
 });

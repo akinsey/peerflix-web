@@ -27,22 +27,22 @@
   },
   "homepage": "https://github.com/akinsey/peerflix-web",
   "dependencies": {
-    "boom": "^2.6.1",
-    "good": "^5.1.2",
-    "good-console": "^4.1.0",
-    "good-file": "^4.0.2",
-    "hapi": "^8.4.0",
-    "ip": "^0.3.2",
-    "kickass-torrent": "akinsey/node-kickass-torrent",
+    "boom": "^4.3.1",
+    "good": "^7.1.0",
+    "good-console": "^6.4.0",
+    "good-file": "^6.0.1",
+    "good-squeeze": "^5.0.2",
+    "hapi": "^16.1.1",
+    "inert": "^4.2.0",
+    "ip": "^1.1.5",
     "mkdirp": "^0.5.0",
     "node-ip": "^0.1.0",
     "node-uuid": "^1.4.1",
-    "omxctrl": "^0.1.2",
-    "peerflix": "^0.8.6",
+    "peerflix": "^0.36.3",
     "read-torrent": "^1.0.0",
     "rimraf": "^2.3.2"
   },
-  "bin" : {
-    "peerflix-web" : "./server.js"
+  "bin": {
+    "peerflix-web": "./server.js"
   }
 }
